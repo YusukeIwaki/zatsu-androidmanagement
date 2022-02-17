@@ -1,0 +1,23 @@
+{
+  "name": "@zatsu/androidmanagement",
+  "version": "0.1.1-0",
+  "description": "A CLI tool for Android Management API v1",
+  "main": "index.js",
+  "bin": {
+    "androidmanagement": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YusukeIwaki/zatsu-androidmanagement.git"
+  },
+  "author": "YusukeIwaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YusukeIwaki/zatsu-androidmanagement/issues"
+  },
+  "homepage": "https://github.com/YusukeIwaki/zatsu-androidmanagement#readme",
+  "dependencies": {
+    "@zatsu/core": "0.1.0-alpha.3",
+    "google-auth-library": "^7.12.0"
+  }
+}
