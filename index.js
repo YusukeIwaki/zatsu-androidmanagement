@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { executeHTTPRequest } = require('@zatsu/core')
 const { saveCredentials, createGoogleAuthInterceptor } = require('./auth')
 
