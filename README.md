@@ -1,5 +1,10 @@
 # @zatsu/androidmanagement
 
+**DEPRECATED** The Dart version of AndroidManagement API v1 client is a good alternative to this app.
+https://github.com/YusukeIwaki/rakuda-androidamanagement-api
+
+---
+
 ## Install
 
 ```
