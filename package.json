@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/YusukeIwaki/zatsu-androidmanagement#readme",
   "dependencies": {
-    "@zatsu/core": "0.1.0-alpha.3",
+    "@zatsu/core": "^0.2.0",
     "google-auth-library": "^7.12.0"
   }
 }

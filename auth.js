@@ -1,17 +1,14 @@
 const { GoogleAuth } = require('google-auth-library')
 const path = require('path')
 const fs = require('fs')
+const { updateKeyValue, useFileCache } = require('@zatsu/core')
 
 /**
  * @typedef {{project_id: string, client_email: string, private_key: string}} KeyJsonPayload
  */
 
-const cacheDir = path.join(
-    process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"],
-    '.androidmanagement',
-)
-const credentialsPath = path.join(cacheDir, 'credentials')
-const accessTokenPath = path.join(cacheDir, 'access_token')
+const credentialsCache = useFileCache('androidmanagement', 'credentials')
+const accessTokenCache = useFileCache('androidmanagement', 'access_token')
 
 /**
  *
@@ -51,8 +48,7 @@ async function getJsonKeyFileContent(keyJsonFilename) {
  * @param {KeyJsonPayload} keyJson
  */
 async function cacheCredentials(keyJson) {
-    await fs.promises.mkdir(cacheDir, { recursive: true })
-    await fs.promises.writeFile(credentialsPath, JSON.stringify(keyJson))
+    await credentialsCache.put(JSON.stringify(keyJson))
 }
 
 /**
@@ -60,9 +56,11 @@ async function cacheCredentials(keyJson) {
  * @returns {Promise<KeyJsonPayload|undefined>}
  */
 async function getCachedCredentials() {
+    const credentialsContent = await credentialsCache.get()
+    if (!credentialsContent) return
+
     try {
-        const credentialsContent = (await fs.promises.readFile(credentialsPath)).toString('utf8')
-        return JSON.parse(credentialsContent)
+        return JSON.parse(credentialsContent.toString('utf8'))
     } catch (_) {
         return
     }
@@ -93,8 +91,11 @@ async function fetchAccessToken(keyJson) {
  * @returns {Promise<string | undefined>}
  */
 async function getCachedAccessToken() {
+    const token = accessTokenCache.get()
+    if (!token) return
+
     try {
-        return (await fs.promises.readFile(accessTokenPath)).toString('utf8')
+        return token.toString('utf8')
     } catch (_) {
         return
     }
@@ -105,15 +106,14 @@ async function getCachedAccessToken() {
  * @param {string} accessToken
  */
 async function cacheAccessToken(accessToken) {
-    await fs.promises.mkdir(cacheDir, { recursive: true })
-    await fs.promises.writeFile(accessTokenPath, accessToken)
+    await accessTokenCache.put(accessToken)
 }
 
 /**
  *
  */
 async function invalidateAccessToken() {
-    await fs.promises.unlink(accessTokenPath)
+    await accessTokenCache.delete()
 }
 
 /**
@@ -150,12 +150,7 @@ function createGoogleAuthInterceptor() {
             }
 
             // Replace existing Authorization header.
-            for (let index = 0; index < request.headers.length; index++) {
-                if (request.headers[index][0] == 'Authorization') {
-                    request.headers.splice(index, 1, ['Authorization', `Bearer ${accessToken}`])
-                    break
-                }
-            }
+            updateKeyValue(request.headers, 'Authorization', `Bearer ${accessToken}`)
 
             response = await performRequest(request)
         }

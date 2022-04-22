@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { executeHTTPRequest } = require('@zatsu/core')
+const { buildRequestFromArgs, executeRequest, injectHeadersForJsonRequest, printResponseBody } = require('@zatsu/core')
 const { saveCredentials, createGoogleAuthInterceptor } = require('./auth')
 
 if (process.argv[2] == 'configure') {
@@ -13,11 +13,16 @@ if (process.argv[2] == 'configure') {
     })()
 } else {
     (async () => {
-        await executeHTTPRequest(process.argv.slice(2), {
+        const request = await buildRequestFromArgs(process.argv.slice(2))
+        const response = await executeRequest(request, {
             baseURL: 'https://androidmanagement.googleapis.com/v1',
             interceptors: [
+                injectHeadersForJsonRequest,
                 createGoogleAuthInterceptor()
             ],
         })
+        if (!!response.body) {
+            printResponseBody(response.body)
+        }
     })()
 }
